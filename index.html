@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Estate Investment Calculator Pro</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1f2937;
+            --light: #f8fafc;
+            --glass: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(120, 219, 226, 0.3) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .floating-elements {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        .floating-elements::before,
+        .floating-elements::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            animation: float 20s infinite ease-in-out;
+        }
+        
+        .floating-elements::before {
+            top: 10%;
+            left: 80%;
+            animation-delay: 0s;
+        }
+        
+        .floating-elements::after {
+            bottom: 10%;
+            left: 10%;
+            animation-delay: 10s;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: rotate 10s linear infinite;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header h1 {
+            font-size: 3.5em;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 15px;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+            background: linear-gradient(135deg, #fff, #a8edea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header p {
+            font-size: 1.3em;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 400;
+        }
+        
+        .tabs {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 8px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px 20px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tab.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            transform: scale(1.02);
+        }
+        
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 35px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .glass-card:hover::before {
+            left: 100%;
+        }
+        
+        .section-title {
+            color: white;
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title i {
+            color: #a8edea;
+            font-size: 1.2em;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: white;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-group label i {
+            color: #a8edea;
+            font-size: 0.9em;
+        }
+        
+        .input-container {
+            position: relative;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            font-size: 1em;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #a8edea;
+            box-shadow: 0 0 0 3px rgba(168, 237, 234, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 18px 35px;
+            border: none;
+            border-radius: 20px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            width: 100%;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        .results-container {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: white;
+            font-size: 1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .result-value {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #a8edea;
+        }
+        
+        .highlight-card {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 20px;
+            margin: 15px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .highlight-card.warning {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        .highlight-card.danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+        }
+        
+        .highlight-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: pulse 3s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(0.8); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 0.2; }
+        }
+        
+        .chart-container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            height: 400px;
+        }
+        
+        .chart-title {
+            color: white;
+            font-size: 1.3em;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .comparison-table th {
+            background: rgba(255, 255, 255, 0.1);
+            font-weight: 600;
+        }
+        
+        .comparison-table tr:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .delete-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+        
+        .delete-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: 800;
+            color: #a8edea;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: white;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+            color: white;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #a8edea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .tooltip.show {
+            opacity: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2.5em;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .glass-card {
+                padding: 20px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-elements"></div>
+    
+    <div class="container">
+        <div class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-chart-line"></i> REI Calculator Pro</h1>
+                <p>Advanced Real Estate Investment Analysis & Portfolio Management</p>
+            </div>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab(event, 'calculator')">
+                <i class="fas fa-calculator"></i> Calculator
+            </button>
+            <button class="tab" onclick="switchTab(event, 'comparison')">
+                <i class="fas fa-balance-scale"></i> Comparison
+            </button>
+            <button class="tab" onclick="switchTab(event, 'analytics')">
+                <i class="fas fa-chart-bar"></i> Analytics
+            </button>
+            <button class="tab" onclick="switchTab(event, 'insights')">
+                <i class="fas fa-lightbulb"></i> Market Insights
+            </button>
+        </div>
+        
+        <!-- Calculator Tab -->
+        <div id="calculator" class="tab-content active">
+            <div class="main-content">
+                <div class="glass-card">
+                    <h2 class="section-title">
+                        <i class="fas fa-home"></i> Property Details
+                    </h2>
+                    <form id="calculatorForm">
+                        <div class="form-group">
+                            <label for="address">
+                                <i class="fas fa-map-marker-alt"></i> Property Address
+                            </label>
+                            <input type="text" id="address" name="address" placeholder="123 Main St, City, State">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="square_feet">
+                                <i class="fas fa-ruler-combined"></i> Square Feet
+                            </label>
+                            <input type="number" id="square_feet" name="square_feet" placeholder="1200" step="1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="arv">
+                                <i class="fas fa-dollar-sign"></i> ARV (After Repair Value)
+                            </label>
+                            <input type="number" id="arv" name="arv" placeholder="150000" step="0.01">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="transaction_percent">
+                                <i class="fas fa-percentage"></i> Transaction % (Closing Costs)
+                            </label>
+                            <input type="number" id="transaction_percent" name="transaction_percent" placeholder="3" step="0.1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="investor_roi_percent">
+                                <i class="fas fa-chart-line"></i> Investor ROI %
+                            </label>
+                            <input type="number" id="investor_roi_percent" name="investor_roi_percent" placeholder="20" step="0.1">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="rehab_ppsf">
+                                <i class="fas fa-hammer"></i> Rehab Cost per Sq Ft
+                            </label>
+                            <input type="number" id="rehab_ppsf" name="rehab_ppsf" placeholder="15" step="0.01">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="wholesale_fee">
+                                <i class="fas fa-coins"></i> Wholesale Fee
+                            </label>
+                            <input type="number" id="wholesale_fee" name="wholesale_fee" placeholder="5000" step="0.01">
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-calculator"></i> Calculate Investment
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="glass-card">
+                    <h2 class="section-title">
+                        <i class="fas fa-analytics"></i> Investment Analysis
+                    </h2>
+                    
+                    <div class="loading" id="loading">
+                        <div class="spinner"></div>
+                        <p>Calculating your investment...</p>
+                    </div>
+                    
+                    <div id="results" style="display: none;">
+                        <div class="results-container">
+                            <div class="result-item">
+                                <span class="result-label">
+                                    <i class="fas fa-map-marker-alt"></i> Property Address
+                                </span>
+                                <span class="result-value" id="result-address">-</span>
+                            </div>
+                            
+                            <div class="result-item">
+                                <span class="result-label">
+                                    <i class="fas fa-ruler-combined"></i> Square Feet
+                                </span>
+                                <span class="result-value" id="result-sqft">-</span>
+                            </div>
+                            
+                            <div class="result-item">
+                                <span class="result-label">
+                                    <i class="fas fa-dollar-sign"></i> ARV
+                                </span>
+                                <span class="result-value" id="result-arv">-</span>
+                            </div>
+                            
+                            <div class="result-item">
+                                <span class="result-label">
+                                    <i class="fas fa-file-invoice-dollar"></i> Transaction Cost
+                                </span>
+                                <span class="result-value" id="result-transaction">-</span>
+                            </div>
+                            
+                            <div class="result-item">
+                                <span class="result-label">
+                                    <i class="fas fa-chart-line"></i> Investor ROI
+                                </span>
+                                <span class="result-value" id="result-roi">-</span>
+                            </div>
+                            
+                            <div class="result-item">
+                                <span class="result-label">
+                                    <i class="fas fa-hammer"></i> Rehab Cost
+                                </span>
+                                <span class="result-value" id="result-rehab">-</span>
+                            </div>
+                            
+                            <div class="result-item">
+                                <span class="result-label">
+                                    <i class="fas fa-coins"></i> Wholesale Fee
+                                </span>
+                                <span class="result-value" id="result-wholesale">-</span>
+                            </div>
+                        </div>
+                        
+                        <div class="highlight-card" id="max-offer-card">
+                            <h3><i class="fas fa-handshake"></i> Maximum Offer Price</h3>
+                            <div class="stat-number" id="max-offer-price">$0</div>
+                            <p>This is the maximum you should offer for this property</p>
+                        </div>
+                        
+                        <div class="highlight-card" id="profit-card">
+                            <h3><i class="fas fa-money-check-alt"></i> Buyer Entry Fee</h3>
+                            <div class="stat-number" id="estimated-profit">$0</div>
+                            <p>This is the total amount the end buyer will pay</p>
+                        </div>
+                        
+                        <button class="btn btn-success" onclick="saveToComparison()">
+                            <i class="fas fa-save"></i> Save to Comparison
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Comparison Tab -->
+        <div id="comparison" class="tab-content">
+            <div class="glass-card">
+                <h2 class="section-title">
+                    <i class="fas fa-balance-scale"></i> Property Comparison
+                </h2>
+                
+                <div id="comparison-empty" class="text-center" style="padding: 40px; color: white;">
+                    <i class="fas fa-inbox" style="font-size: 3em; margin-bottom: 20px; opacity: 0.5;"></i>
+                    <h3>No Properties to Compare</h3>
+                    <p>Calculate properties in the Calculator tab to add them here for comparison.</p>
+                </div>
+                
+                <div id="comparison-table-container" style="display: none;">
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Address</th>
+                                <th>ARV</th>
+                                <th>Max Offer</th>
+                                <th>Profit</th>
+                                <th>ROI %</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="comparison-tbody">
+                        </tbody>
+                    </table>
+                    
+                    <button class="btn btn-warning" onclick="clearComparison()">
+                        <i class="fas fa-trash"></i> Clear All
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Analytics Tab -->
+        <div id="analytics" class="tab-content">
+            <div class="glass-card">
+                <h2 class="section-title">
+                    <i class="fas fa-chart-bar"></i> Portfolio Analytics
+                </h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-properties">0</div>
+                        <div class="stat-label">Total Properties</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-number" id="avg-arv">$0</div>
+                        <div class="stat-label">Average ARV</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-number" id="avg-profit">$0</div>
+                        <div class="stat-label">Average Profit</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-number" id="avg-roi">0%</div>
+                        <div class="stat-label">Average ROI</div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-title">Property Value Distribution</div>
+                    <canvas id="analyticsChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Market Insights Tab -->
+        <div id="insights" class="tab-content">
+            <div class="glass-card">
+                <h2 class="section-title">
+                    <i class="fas fa-lightbulb"></i> Market Insights & Tips
+                </h2>
+                
+                <div class="highlight-card">
+                    <h3><i class="fas fa-search"></i> Property Research Tips</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Always verify ARV with recent comparable sales</li>
+                        <li>Factor in holding costs and unexpected repairs</li>
+                        <li>Consider neighborhood trends and future development</li>
+                        <li>Check for liens, taxes, and legal issues</li>
+                    </ul>
+                </div>
+                
+                <div class="highlight-card warning">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Risk Factors</h3>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Market volatility can affect ARV estimates</li>
+                        <li>Construction costs may exceed initial estimates</li>
+                        <li>Time on market can impact profitability</li>
+                        <li>Interest rate changes affect financing costs</li>
+                    </ul>
+                </div>
+                
+                <div class="highlight-card">
+                    <h3><i class="fas fa-calculator"></i> Formula Breakdown</h3>
+                    <div style="margin-top: 15px;">
+                        <p><strong>Max Offer Price =</strong> ARV - Transaction Costs - Investor ROI - Rehab Costs - Wholesale Fee</p>
+                        <p><strong>Estimated Profit =</strong> Max Offer Price - Actual Purchase Price</p>
+                        <p><strong>Transaction Costs =</strong> ARV × Transaction %</p>
+                        <p><strong>Investor ROI =</strong> ARV × ROI %</p>
+                        <p><strong>Rehab Costs =</strong> Square Feet × Rehab per Sq Ft</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="tooltip" id="tooltip"></div>
+    
+    <script>
+        // Global variables
+        let savedProperties = [];
+        let analyticsChart = null;
+        
+        // Tab switching functionality
+        function switchTab(evt, tabName) {
+            const tabcontents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < tabcontents.length; i++) {
+                tabcontents[i].classList.remove("active");
+            }
+            
+            const tabs = document.getElementsByClassName("tab");
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove("active");
+            }
+            
+            document.getElementById(tabName).classList.add("active");
+            evt.currentTarget.classList.add("active");
+            
+            // Update analytics when switching to analytics tab
+            if (tabName === 'analytics') {
+                updateAnalytics();
+            }
+        }
+        
+        // Form submission handler
+        document.getElementById('calculatorForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            
+            // Get form data
+            const formData = new FormData(this);
+            const data = {};
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+            
+            // Simulate calculation delay
+            setTimeout(() => {
+                calculateInvestment(data);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('results').style.display = 'block';
+            }, 1500);
+        });
+        
+        // Investment calculation function
+        function calculateInvestment(data) {
+            const arv = parseFloat(data.arv) || 0;
+            const transactionPercent = parseFloat(data.transaction_percent) || 0;
+            const investorROIPercent = parseFloat(data.investor_roi_percent) || 0;
+            const rehabPPSF = parseFloat(data.rehab_ppsf) || 0;
+            const squareFeet = parseFloat(data.square_feet) || 0;
+            const wholesaleFee = parseFloat(data.wholesale_fee) || 0;
+            
+            const transactionCost = arv * (1 - transactionPercent / 100);
+            const investorROI = arv * (investorROIPercent / 100);
+            const rehabCost = squareFeet * rehabPPSF;
+            
+            const maxOfferPrice = arv - transactionCost - investorROI - rehabCost - wholesaleFee;
+            const buyerEntryFee = maxOfferPrice + wholesaleFee;
+            
+            // Update results display
+            document.getElementById('result-address').textContent = data.address || 'N/A';
+            document.getElementById('result-sqft').textContent = squareFeet.toLocaleString() + ' sq ft';
+            document.getElementById('result-arv').textContent = '$' + arv.toLocaleString();
+            document.getElementById('result-transaction').textContent = '$' + transactionCost.toLocaleString();
+            document.getElementById('result-roi').textContent = '$' + investorROI.toLocaleString();
+            document.getElementById('result-rehab').textContent = '$' + rehabCost.toLocaleString();
+            document.getElementById('result-wholesale').textContent = '$' + wholesaleFee.toLocaleString();
+            
+            document.getElementById('max-offer-price').textContent = '$' + maxOfferPrice.toLocaleString();
+            document.getElementById('estimated-profit').textContent = '$' + buyerEntryFee.toLocaleString();
+            
+            // Update card colors based on profitability
+            const maxOfferCard = document.getElementById('max-offer-card');
+            const profitCard = document.getElementById('profit-card');
+            
+            if (maxOfferPrice < 0) {
+                maxOfferCard.className = 'highlight-card danger';
+                profitCard.className = 'highlight-card danger';
+            } else if (maxOfferPrice < arv * 0.5) {
+                maxOfferCard.className = 'highlight-card warning';
+                profitCard.className = 'highlight-card warning';
+            } else {
+                maxOfferCard.className = 'highlight-card';
+                profitCard.className = 'highlight-card';
+            }
+            
+            // Store current calculation for saving
+            window.currentCalculation = {
+                address: data.address || 'Unknown Address',
+                arv: arv,
+                maxOffer: maxOfferPrice,
+                profit: buyerEntryFee,
+                roiPercent: investorROIPercent,
+                squareFeet: squareFeet,
+                timestamp: new Date().toISOString()
+            };
+        }
+        
+        // Save to comparison function
+        function saveToComparison() {
+            if (!window.currentCalculation) {
+                alert('Please calculate a property first!');
+                return;
+            }
+            
+            savedProperties.push({ ...window.currentCalculation });
+            updateComparison();
+            
+            // Show success message
+            const btn = event.target;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+            btn.style.background = 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = '';
+            }, 2000);
+        }
+        
+        // Update comparison table
+        function updateComparison() {
+            const tbody = document.getElementById('comparison-tbody');
+            const emptyDiv = document.getElementById('comparison-empty');
+            const tableContainer = document.getElementById('comparison-table-container');
+            
+            if (savedProperties.length === 0) {
+                emptyDiv.style.display = 'block';
+                tableContainer.style.display = 'none';
+                return;
+            }
+            
+            emptyDiv.style.display = 'none';
+            tableContainer.style.display = 'block';
+            
+            tbody.innerHTML = '';
+            
+            savedProperties.forEach((property, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${property.address}</td>
+                    <td>$${property.arv.toLocaleString()}</td>
+                    <td>$${property.maxOffer.toLocaleString()}</td>
+                    <td>$${property.profit.toLocaleString()}</td>
+                    <td>${property.roiPercent}%</td>
+                    <td>
+                        <button class="delete-btn" onclick="deleteProperty(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Delete property from comparison
+        function deleteProperty(index) {
+            savedProperties.splice(index, 1);
+            updateComparison();
+            updateAnalytics();
+        }
+        
+        // Clear all comparisons
+        function clearComparison() {
+            if (confirm('Are you sure you want to clear all saved properties?')) {
+                savedProperties = [];
+                updateComparison();
+                updateAnalytics();
+            }
+        }
+        
+        // Update analytics
+        function updateAnalytics() {
+            if (savedProperties.length === 0) {
+                document.getElementById('total-properties').textContent = '0';
+                document.getElementById('avg-arv').textContent = '$0';
+                document.getElementById('avg-profit').textContent = '$0';
+                document.getElementById('avg-roi').textContent = '0%';
+                
+                if (analyticsChart) {
+                    analyticsChart.destroy();
+                    analyticsChart = null;
+                }
+                return;
+            }
+            
+            const totalProperties = savedProperties.length;
+            const avgARV = savedProperties.reduce((sum, prop) => sum + prop.arv, 0) / totalProperties;
+            const avgProfit = savedProperties.reduce((sum, prop) => sum + prop.profit, 0) / totalProperties;
+            const avgROI = savedProperties.reduce((sum, prop) => sum + prop.roiPercent, 0) / totalProperties;
+            
+            document.getElementById('total-properties').textContent = totalProperties;
+            document.getElementById('avg-arv').textContent = '$' + Math.round(avgARV).toLocaleString();
+            document.getElementById('avg-profit').textContent = '$' + Math.round(avgProfit).toLocaleString();
+            document.getElementById('avg-roi').textContent = Math.round(avgROI * 10) / 10 + '%';
+            
+            // Update chart
+            updateChart();
+        }
+        
+        // Update chart
+        function updateChart() {
+            const ctx = document.getElementById('analyticsChart').getContext('2d');
+            
+            if (analyticsChart) {
+                analyticsChart.destroy();
+            }
+            
+            const labels = savedProperties.map(prop => prop.address.substring(0, 20) + '...');
+            const arvData = savedProperties.map(prop => prop.arv);
+            const profitData = savedProperties.map(prop => prop.profit);
+            
+            analyticsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'ARV',
+                        data: arvData,
+                        backgroundColor: 'rgba(168, 237, 234, 0.8)',
+                        borderColor: 'rgba(168, 237, 234, 1)',
+                        borderWidth: 2
+                    }, {
+                        label: 'Profit',
+                        data: profitData,
+                        backgroundColor: 'rgba(67, 233, 123, 0.8)',
+                        borderColor: 'rgba(67, 233, 123, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'white'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: 'white',
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: 'white'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Tooltip functionality
+        const tooltip = document.getElementById('tooltip');
+        
+        document.querySelectorAll('[data-tooltip]').forEach(element => {
+            element.addEventListener('mouseenter', function(e) {
+                tooltip.textContent = this.getAttribute('data-tooltip');
+                tooltip.classList.add('show');
+            });
+            
+            element.addEventListener('mouseleave', function() {
+                tooltip.classList.remove('show');
+            });
+            
+            element.addEventListener('mousemove', function(e) {
+                tooltip.style.left = e.pageX + 10 + 'px';
+                tooltip.style.top = e.pageY + 10 + 'px';
+            });
+        });
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateComparison();
+            updateAnalytics();
+        });
+        
+        // Form validation
+        const inputs = document.querySelectorAll('input[type="number"]');
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                if (this.value < 0) {
+                    this.style.borderColor = '#ff6b6b';
+                } else {
+                    this.style.borderColor = '';
+                }
+            });
+        });
+        
+        // Auto-save functionality (using memory storage)
+        function autoSave() {
+            const formData = new FormData(document.getElementById('calculatorForm'));
+            const data = {};
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+            window.autoSavedData = data;
+        }
+        
+        // Auto-restore functionality
+        function autoRestore() {
+            if (window.autoSavedData) {
+                const form = document.getElementById('calculatorForm');
+                Object.keys(window.autoSavedData).forEach(key => {
+                    const input = form.querySelector(`[name="${key}"]`);
+                    if (input) {
+                        input.value = window.autoSavedData[key];
+                    }
+                });
+            }
+        }
+        
+        // Add auto-save listeners
+        inputs.forEach(input => {
+            input.addEventListener('blur', autoSave);
+        });
+        
+        // Restore data on page load
+        window.addEventListener('load', autoRestore);
+    </script>
+</body>
+</html>
